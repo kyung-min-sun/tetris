@@ -1,3 +1,4 @@
+import { randomInt } from "crypto";
 
 export type GridListener = (grid: Cell[][]) => void;
 export type CellCount = number;
@@ -6,12 +7,16 @@ export type Cell = {
   isFilled: boolean;
 };
 
+
+
 /**
  *
  */
 export class TetrisLogicService {
   private static tetrisGrid: Cell[][] = [];
   private static gameStateListeners: GridListener[] = [];
+
+  private static currentPiece: (Piece | null ) = null;
 
   /**
    * Starts a tetris game given a frontend grid listener.
@@ -29,6 +34,22 @@ export class TetrisLogicService {
   ) {
     this.gameStateListeners.push(frontendListener);
     // Do your stuff with pushing a piece every n seconds, etc.
+
+    // Initialize grid
+    this.tetrisGrid = [];
+    for (let i = 0; i < numRows; i++) {
+      this.tetrisGrid.push([]);
+      for (let j = 0; j < numCols; j++) {
+        this.tetrisGrid[i].push({
+          color: 'black',
+          isFilled: false,
+        });
+      }
+    }
+    this.updateGrid();
+
+    this.currentPiece = null;
+
   }
 
   /**
@@ -39,4 +60,13 @@ export class TetrisLogicService {
       listener([...this.tetrisGrid])
     );
   };
+
+
+  /**
+   * Creates a new piece and adds it to the grid.
+   */
+  private static createPiece() {
+    const pieceID = randomInt(0, 7);
+    this.currentPiece = 
+  }
 }
