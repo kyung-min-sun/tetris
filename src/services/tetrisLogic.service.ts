@@ -1,12 +1,16 @@
 
-export type GridListener = (grid: number[][]) => void;
+export type GridListener = (grid: Cell[][]) => void;
 export type CellCount = number;
+export type Cell = {
+  color: 'red' | 'lightBlue' | 'darkBlue' | 'green' | 'yellow' | 'purple' | 'orange' | 'black';
+  isFilled: boolean;
+};
 
 /**
  *
  */
 export class TetrisLogicService {
-  private static tetrisGrid: number[][] = [];
+  private static tetrisGrid: Cell[][] = [];
   private static gameStateListeners: GridListener[] = [];
 
   /**
