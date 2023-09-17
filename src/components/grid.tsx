@@ -1,5 +1,8 @@
-import {CellCount, TetrisLogicService} from '@/services/tetrisLogic.service';
+import {Cell, CellCount, TetrisLogicService}
+  from '@/services/tetrisLogic.service';
 import {ReactNode, useEffect, useState} from 'react';
+
+import {CellView} from './cell';
 
 export interface GridProps {
   numCols: CellCount;
@@ -11,17 +14,41 @@ export interface GridProps {
  * @param {GridProps} props
  * @return {ReactNode}
  */
-export function Grid(
+export function TetrisGridView(
     {numCols = 10, numRows = 20}: GridProps
 ): ReactNode {
-  const [grid, setGrid] = useState<number[][]>();
+  const [grid, setGrid] = useState<Cell[][]>();
 
   useEffect(() => {
     if (grid == undefined) {
-      TetrisLogicService.startGame(setGrid);
+      setGrid(
+          new Array(numRows).fill(0).map((row) =>
+            new Array(numCols).fill(0).map((col) => {
+              return {
+                isFilled: false,
+                color: 'black',
+              };
+            }
+            )
+          )
+      );
     }
-  }, [grid]);
+  }, [grid, numCols, numRows]);
+  console.log('hi');
+
   return (
-    <div></div>
+    <div className="flex flex-col-reverse">
+      {
+        grid?.map((gridRow, i) =>
+          <div key={i} className={`flex flex-row items-center`}>
+            {
+              gridRow?.map((gridCell, j) =>
+                <CellView key={j} cell={gridCell} />
+              )
+            }
+          </div>
+        )
+      }
+    </div>
   );
 }
