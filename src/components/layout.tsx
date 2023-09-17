@@ -1,8 +1,8 @@
-import {Inter} from 'next/font/google';
 import {PropsWithChildren, ReactNode} from 'react';
 import {ThemeProvider, createTheme} from '@mui/material';
+
 import Head from 'next/head';
-import {SideBar} from './sideBar';
+import {Inter} from 'next/font/google';
 
 const inter = Inter({
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
@@ -58,14 +58,7 @@ export default function Layout(
         <title>{title}</title>
       </Head>
       <ThemeProvider theme={theme}>
-        <div className="grid grid-cols-6 p-4">
-          <div className="col-span-1">
-            <SideBar />
-          </div>
-          <div className="col-span-5">
-            {children}
-          </div>
-        </div>
+        {children}
       </ThemeProvider>
     </main>
   );
