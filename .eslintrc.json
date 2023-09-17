@@ -1,0 +1,7 @@
+{
+  "extends": ["next/core-web-vitals", "google"],
+  "rules": {
+    "new-cap": 0
+  },
+  "ignorePatterns": ["next-env.d.ts"]
+}
