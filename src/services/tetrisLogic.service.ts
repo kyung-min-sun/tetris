@@ -2,7 +2,8 @@
 export type GridListener = (grid: Cell[][]) => void;
 export type CellCount = number;
 export type Cell = {
-  color: 'red' | 'lightBlue' | 'darkBlue' | 'green' | 'yellow' | 'purple' | 'orange' | 'black';
+  color: 'red' | 'lightBlue' | 'darkBlue' | 'green' |
+  'yellow' | 'purple' | 'orange' | 'black';
   isFilled: boolean;
 };
 
