@@ -22,7 +22,7 @@ export abstract class Piece {
   public abstract setPosition(): void;
 
   public getCellGrid(): Cell[][] {
-    return this.cells;
+    return [...this.cells];
   }
   public rotate() {
     this.rotation = (this.rotation + 1) % 4;

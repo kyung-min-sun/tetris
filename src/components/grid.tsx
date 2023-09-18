@@ -23,7 +23,7 @@ export function TetrisGridView(
 
   useEffect(() => {
     if (grid == undefined) {
-      TetrisLogicService.startGame(
+      TetrisLogicService.listenToGame(
           setGrid,
           setIsTerminated,
       );

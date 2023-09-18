@@ -16,13 +16,13 @@ export type Cell = {
  *
  */
 export class TetrisLogicService {
-  private static tetrisGrid: Cell[][] = [];
+  private static tetrisGrid: Cell[][] = this.initializeGrid();
   private static gameStateListeners: GridListener[] = [];
   private static terminationListeners: GameTerminationListener[] = [];
 
   private static topCol: number = 4;
   private static topRow: number = 0;
-  private static currentPiece: Piece;
+  private static currentPiece: Piece = this.createRandomPiece();
 
   /**
    * Starts a tetris game given a frontend grid listener.
@@ -31,24 +31,13 @@ export class TetrisLogicService {
    * This way, we'll be able to display the new grid to the user.
    * @param {GridListener} frontendListener
    * @param {GameTerminationListener} terminationListener
-   * @param {CellCount} numCols
-   * @param {CellCount} numRows
    */
-  public static startGame(
+  public static listenToGame(
       frontendListener: GridListener,
-      terminationListener: GameTerminationListener,
-      numCols: CellCount = 12,
-      numRows: CellCount = 21,
+      terminationListener: GameTerminationListener
   ) {
     this.gameStateListeners.push(frontendListener);
-    // Do your stuff with pushing a piece every n seconds, etc.
-
-    // Initialize grid
-    this.tetrisGrid = [];
-    this.initializeGrid(numRows, numCols);
-    this.updateGrid();
-
-    this.currentPiece = this.createRandomPiece();
+    this.terminationListeners.push(terminationListener);
   }
 
   private static nextTurn = () => {
@@ -60,11 +49,9 @@ export class TetrisLogicService {
           listener(true)
         );
       };
-    } else {
-      console.log(this.tetrisGrid, this.currentPiece, this.topRow);
     }
   };
-  private static gameInterval = setInterval(this.nextTurn, 1000);
+  private static gameInterval = setInterval(this.nextTurn, 100);
 
   private static createRandomPiece(): Piece {
     const random = Math.floor(Math.random() * 7);
@@ -87,7 +74,7 @@ export class TetrisLogicService {
 
   private static resetPiece(): boolean {
     this.topRow = 0;
-    this.createRandomPiece();
+    this.currentPiece = this.createRandomPiece();
     return !this.wouldPieceCollide();
   }
 
@@ -147,8 +134,8 @@ export class TetrisLogicService {
       row.forEach((cell, j) => {
         if (this.topRow + i >= this.tetrisGrid.length || this.topCol + j >= this.tetrisGrid[0].length) return;
         this.tetrisGrid[this.topRow + i][this.topCol + j] = {
-          isFilled: cell.isFilled,
-          color: cell.color,
+          isFilled: cell.isFilled || this.tetrisGrid[this.topRow + i][this.topCol + j].isFilled,
+          color: cell.isFilled ? cell.color : this.tetrisGrid[this.topRow + i][this.topCol + j].color,
         };
       })
     );
@@ -163,7 +150,8 @@ export class TetrisLogicService {
         this.tetrisGrid[this.topRow + i][this.topCol + j] = {
           isFilled: cell.isFilled ? false :
             this.tetrisGrid[this.topRow + i][this.topCol + j].isFilled,
-          color: cell.color,
+          color: cell.isFilled ? 'black' :
+            this.tetrisGrid[this.topRow + i][this.topCol + j].color,
         };
       }
       )
@@ -186,7 +174,8 @@ export class TetrisLogicService {
   }
 
 
-  private static initializeGrid(numRows: number, numCols: number) {
+  private static initializeGrid(numRows: number = 21, numCols: number = 12): Cell[][] {
+    this.tetrisGrid = [];
     for (let i = 0; i < numRows; i++) {
       this.tetrisGrid.push([]);
       for (let j = 0; j < numCols; j++) {
@@ -203,6 +192,7 @@ export class TetrisLogicService {
         isFilled: true,
       });
     }
+    return this.tetrisGrid;
   }
   /**
    * Updates tetris grid for all listeners.
