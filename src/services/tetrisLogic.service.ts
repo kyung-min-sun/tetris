@@ -53,10 +53,9 @@ export class TetrisLogicService {
       if (!this.shiftDown() && !this.resetPiece()) {
         terminationListener(true);
       } else {
-        console.log(this.topRow);
-        console.log(this.currentPiece);
+        console.log(this.tetrisGrid);
       }
-    }, 1000);
+    }, 5000);
   }
 
   private static createRandomPiece(): Piece {
@@ -85,40 +84,37 @@ export class TetrisLogicService {
   }
 
   public static shiftLeft() {
+    this.removePiece();
     this.topCol -= 1;
     if (this.wouldPieceCollide()) {
       this.topCol += 1;
+      this.placePiece();
       return;
     }
-    this.topCol += 1;
-    this.removePiece();
-    this.topCol -= 1;
     this.placePiece();
     this.updateGrid();
   }
 
   public static shiftRight() {
+    this.removePiece();
     this.topCol += 1;
     if (this.wouldPieceCollide()) {
       this.topCol -= 1;
+      this.placePiece();
       return;
     }
-    this.topCol -= 1;
-    this.removePiece();
-    this.topCol += 1;
     this.placePiece();
     this.updateGrid();
   }
 
   public static shiftDown(): boolean {
+    this.removePiece();
     this.topRow += 1;
     if (this.wouldPieceCollide()) {
       this.topRow -= 1;
+      this.placePiece();
       return false;
     }
-    this.topRow -= 1;
-    this.removePiece();
-    this.topRow += 1;
     this.placePiece();
     this.updateGrid();
     return true;
@@ -141,7 +137,7 @@ export class TetrisLogicService {
     const cellGrid = this.currentPiece.getCellGrid();
     cellGrid.forEach((row, i) =>
       row.forEach((cell, j) => {
-        if (this.topRow + i >= this.tetrisGrid.length || this.topCol + j >= row.length) return;
+        if (this.topRow + i >= this.tetrisGrid.length || this.topCol + j >= this.tetrisGrid[0].length) return;
         this.tetrisGrid[this.topRow + i][this.topCol + j] = {
           isFilled: cell.isFilled,
           color: cell.color,
@@ -155,7 +151,7 @@ export class TetrisLogicService {
     const cellGrid = this.currentPiece.getCellGrid();
     cellGrid.forEach((row, i) =>
       row.forEach((cell, j) => {
-        if (this.topRow + i >= this.tetrisGrid.length || this.topCol + j >= row.length) return;
+        if (this.topRow + i >= this.tetrisGrid.length || this.topCol + j >= this.tetrisGrid[0].length) return;
         this.tetrisGrid[this.topRow + i][this.topCol + j] = {
           isFilled: cell.isFilled ? false :
             this.tetrisGrid[this.topRow + i][this.topCol + j].isFilled,
@@ -172,7 +168,7 @@ export class TetrisLogicService {
     let isPieceCollision = false;
     cellGrid.forEach((row, i) =>
       row.forEach((cell, j) => {
-        if (this.topRow + i == this.tetrisGrid.length || this.topCol + j == row.length) return;
+        if (this.topRow + i >= this.tetrisGrid.length || this.topCol + j >= this.tetrisGrid[0].length) return;
         if (isPieceCollision) return;
         isPieceCollision = isPieceCollision || (cell.isFilled &&
           this.tetrisGrid[this.topRow + i][this.topCol + j].isFilled);
