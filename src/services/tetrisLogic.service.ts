@@ -18,6 +18,7 @@ export type Cell = {
 export class TetrisLogicService {
   private static tetrisGrid: Cell[][] = [];
   private static gameStateListeners: GridListener[] = [];
+  private static terminationListeners: GameTerminationListener[] = [];
 
   private static topCol: number = 4;
   private static topRow: number = 0;
@@ -48,15 +49,22 @@ export class TetrisLogicService {
     this.updateGrid();
 
     this.currentPiece = this.createRandomPiece();
-
-    setInterval(() => {
-      if (!this.shiftDown() && !this.resetPiece()) {
-        terminationListener(true);
-      } else {
-        console.log(this.tetrisGrid);
-      }
-    }, 5000);
   }
+
+  private static nextTurn = () => {
+    const shiftFailure = !this.shiftDown();
+    if (shiftFailure) {
+      const resetPieceFailure = !this.resetPiece();
+      if (resetPieceFailure) {
+        this.terminationListeners.forEach((listener) =>
+          listener(true)
+        );
+      };
+    } else {
+      console.log(this.tetrisGrid, this.currentPiece, this.topRow);
+    }
+  };
+  private static gameInterval = setInterval(this.nextTurn, 1000);
 
   private static createRandomPiece(): Piece {
     const random = Math.floor(Math.random() * 7);
