@@ -151,7 +151,7 @@ export class LPiece extends Piece {
     }
   }
   private getCell(): Cell {
-    return {isFilled: true, color: 'purple'};
+    return {isFilled: true, color: 'darkBlue'};
   }
 }
 
@@ -182,7 +182,7 @@ export class JPiece extends Piece {
     }
   }
   private getCell(): Cell {
-    return {isFilled: true, color: 'purple'};
+    return {isFilled: true, color: 'orange'};
   }
 }
 
@@ -214,7 +214,7 @@ export class SPiece extends Piece {
     }
   }
   private getCell(): Cell {
-    return {isFilled: true, color: 'purple'};
+    return {isFilled: true, color: 'green'};
   }
 }
 
@@ -245,7 +245,7 @@ export class ZPiece extends Piece {
     }
   }
   private getCell(): Cell {
-    return {isFilled: true, color: 'purple'};
+    return {isFilled: true, color: 'red'};
   }
 }
 
