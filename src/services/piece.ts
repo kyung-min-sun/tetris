@@ -25,11 +25,13 @@ export abstract class Piece {
     return [...this.cells];
   }
   public rotate() {
+    this.cells = this.getInitiallyEmptyCells();
     this.rotation = (this.rotation + 1) % 4;
     this.setPosition();
   }
   public unrotate() {
-    this.rotation = (this.rotation + 4) % 4;
+    this.cells = this.getInitiallyEmptyCells();
+    this.rotation = (this.rotation + 3) % 4;
     this.setPosition();
   }
 

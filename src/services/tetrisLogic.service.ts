@@ -74,6 +74,7 @@ export class TetrisLogicService {
 
   private static resetPiece(): boolean {
     this.topRow = 0;
+    this.topCol = 4;
     this.currentPiece = this.createRandomPiece();
     return !this.wouldPieceCollide();
   }
@@ -102,6 +103,13 @@ export class TetrisLogicService {
     this.updateGrid();
   }
 
+  public static dropDown() {
+    while (!this.wouldPieceCollide()) {
+      console.log(this.topRow);
+      this.shiftDown();
+    }
+  }
+
   public static shiftDown(): boolean {
     this.removePiece();
     this.topRow += 1;
@@ -116,16 +124,15 @@ export class TetrisLogicService {
   }
 
   public static rotate() {
+    this.removePiece();
     this.currentPiece.rotate();
     if (this.wouldPieceCollide()) {
       this.currentPiece.unrotate();
-      return;
+      this.placePiece();
+    } else {
+      this.placePiece();
+      this.updateGrid();
     }
-    this.currentPiece.unrotate();
-    this.removePiece();
-    this.currentPiece.rotate();
-    this.placePiece();
-    this.updateGrid();
   }
 
   private static placePiece(): void {
