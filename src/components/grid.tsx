@@ -41,7 +41,6 @@ export function TetrisGridView(
     } else if (e.key == 'ArrowDown') {
       TetrisLogicService.shiftDown();
     } else if (e.key == ' ') {
-      console.log('hi');
       TetrisLogicService.dropDown();
     } else {
       TetrisLogicService.rotate();

@@ -104,9 +104,9 @@ export class TetrisLogicService {
   }
 
   public static dropDown() {
-    while (!this.wouldPieceCollide()) {
-      console.log(this.topRow);
-      this.shiftDown();
+    let shiftSuccess = this.shiftDown();
+    while (shiftSuccess) {
+      shiftSuccess = this.shiftDown();
     }
   }
 
