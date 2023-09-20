@@ -1,6 +1,13 @@
-/* eslint-disable max-len */
-/* eslint-disable require-jsdoc */
-import {IPiece, JPiece, LPiece, OPiece, Piece, SPiece, TPiece, ZPiece} from '@/services/piece';
+import {
+  IPiece,
+  JPiece,
+  LPiece,
+  OPiece,
+  Piece,
+  SPiece,
+  TPiece,
+  ZPiece,
+} from '@/services/piece';
 
 export type GridListener = (grid: Cell[][]) => void;
 export type GameTerminationListener = (terminate: boolean) => void;
@@ -23,6 +30,7 @@ export class TetrisLogicService {
   private static topCol: number = 4;
   private static topRow: number = 0;
   private static currentPiece: Piece = this.createRandomPiece();
+  private static score: number = 0;
 
   /**
    * Starts a tetris game given a frontend grid listener.
@@ -45,16 +53,50 @@ export class TetrisLogicService {
     if (shiftFailure) {
       const resetPieceFailure = !this.resetPiece();
       if (resetPieceFailure) {
-        this.terminationListeners.forEach((listener) =>
-          listener(true)
-        );
+        this.terminateGame();
       };
     }
   };
   private static gameInterval = setInterval(this.nextTurn, 100);
 
+  /**
+   * Finishes game.
+   */
+  private static terminateGame() {
+    this.terminationListeners.forEach((listener) =>
+      listener(true)
+    );
+    clearInterval(this.gameInterval);
+  }
+
+  /**
+   * Starts game.
+   */
+  public static startGame() {
+    this.tetrisGrid = this.initializeGrid();
+    this.currentPiece = this.createRandomPiece();
+    this.updateGrid();
+    this.terminationListeners.forEach((listener) =>
+      listener(false)
+    );
+    this.score = 0;
+    this.gameInterval = setInterval(this.nextTurn, 100);
+  }
+
+  /**
+   * Returns score of the most recent game (even if terminated).
+   * @return {number}
+   */
+  public static getScore(): number {
+    return this.score;
+  }
+
+  /**
+   * @return {Piece}
+   */
   private static createRandomPiece(): Piece {
-    const random = Math.floor(Math.random() * 7);
+    // const random = Math.floor(Math.random() * 7);
+    const random = 1;
     if (random == 0) {
       return new OPiece();
     } else if (random == 1) {
@@ -72,6 +114,10 @@ export class TetrisLogicService {
     }
   }
 
+  /**
+   * Returns whether reset piece operation was successful
+   * @return {boolean}
+   */
   private static resetPiece(): boolean {
     this.topRow = 0;
     this.topCol = 4;
@@ -79,6 +125,9 @@ export class TetrisLogicService {
     return !this.wouldPieceCollide();
   }
 
+  /**
+   * Moves piece one column left.
+   */
   public static shiftLeft() {
     this.removePiece();
     this.topCol -= 1;
@@ -91,6 +140,9 @@ export class TetrisLogicService {
     this.updateGrid();
   }
 
+  /**
+   * Moves piece one column right.
+   */
   public static shiftRight() {
     this.removePiece();
     this.topCol += 1;
@@ -103,6 +155,9 @@ export class TetrisLogicService {
     this.updateGrid();
   }
 
+  /**
+   * Drops piece all the way down to the lowest possible row.
+   */
   public static dropDown() {
     let shiftSuccess = this.shiftDown();
     while (shiftSuccess) {
@@ -110,6 +165,11 @@ export class TetrisLogicService {
     }
   }
 
+  /**
+   * Moves piece one row down.
+   * Returns whether operation was successful.
+   * @return {boolean}
+   */
   public static shiftDown(): boolean {
     this.removePiece();
     this.topRow += 1;
@@ -123,6 +183,9 @@ export class TetrisLogicService {
     return true;
   }
 
+  /**
+   * Rotates piece.
+   */
   public static rotate() {
     this.removePiece();
     this.currentPiece.rotate();
@@ -135,25 +198,41 @@ export class TetrisLogicService {
     }
   }
 
+  /**
+   * Places piece on the cell grid.
+   */
   private static placePiece(): void {
     const cellGrid = this.currentPiece.getCellGrid();
     cellGrid.forEach((row, i) =>
       row.forEach((cell, j) => {
-        if (this.topRow + i >= this.tetrisGrid.length || this.topCol + j >= this.tetrisGrid[0].length) return;
+        const beyondBounds = (
+          this.topRow + i >= this.tetrisGrid.length ||
+          this.topCol + j >= this.tetrisGrid[0].length
+        );
+        if (beyondBounds || !cell) return;
         this.tetrisGrid[this.topRow + i][this.topCol + j] = {
-          isFilled: cell.isFilled || this.tetrisGrid[this.topRow + i][this.topCol + j].isFilled,
-          color: cell.isFilled ? cell.color : this.tetrisGrid[this.topRow + i][this.topCol + j].color,
+          isFilled: cell.isFilled ||
+            this.tetrisGrid[this.topRow + i][this.topCol + j].isFilled,
+          color: cell.isFilled ? cell.color :
+            this.tetrisGrid[this.topRow + i][this.topCol + j].color,
         };
       })
     );
     this.updateGrid();
   };
 
+  /**
+   * Removes piece from the grid.
+   */
   private static removePiece(): void {
     const cellGrid = this.currentPiece.getCellGrid();
     cellGrid.forEach((row, i) =>
       row.forEach((cell, j) => {
-        if (this.topRow + i >= this.tetrisGrid.length || this.topCol + j >= this.tetrisGrid[0].length) return;
+        const beyondBounds = (
+          this.topRow + i >= this.tetrisGrid.length ||
+          this.topCol + j >= this.tetrisGrid[0].length
+        );
+        if (beyondBounds || !cell) return;
         this.tetrisGrid[this.topRow + i][this.topCol + j] = {
           isFilled: cell.isFilled ? false :
             this.tetrisGrid[this.topRow + i][this.topCol + j].isFilled,
@@ -166,12 +245,20 @@ export class TetrisLogicService {
     this.updateGrid();
   };
 
+  /**
+   * Returns whether the current piece would collide if placed on the grid.
+   * @return {boolean}
+   */
   private static wouldPieceCollide(): boolean {
     const cellGrid = this.currentPiece.getCellGrid();
     let isPieceCollision = false;
     cellGrid.forEach((row, i) =>
       row.forEach((cell, j) => {
-        if (this.topRow + i >= this.tetrisGrid.length || this.topCol + j >= this.tetrisGrid[0].length) return;
+        const beyondBounds = (
+          this.topRow + i >= this.tetrisGrid.length ||
+          this.topCol + j >= this.tetrisGrid[0].length
+        );
+        if (beyondBounds) return;
         if (isPieceCollision) return;
         isPieceCollision = isPieceCollision || (cell.isFilled &&
           this.tetrisGrid[this.topRow + i][this.topCol + j].isFilled);
@@ -180,13 +267,21 @@ export class TetrisLogicService {
     return isPieceCollision;
   }
 
-
-  private static initializeGrid(numRows: number = 21, numCols: number = 12): Cell[][] {
+  /**
+   * Initializes grid to all empty cells.
+   * @param {number} numRows
+   * @param {number} numCols
+   * @return {Array.<Cell[]>}
+   */
+  private static initializeGrid(
+      numRows: number = 21,
+      numCols: number = 12
+  ): Cell[][] {
     this.tetrisGrid = [];
     for (let i = 0; i < numRows; i++) {
       this.tetrisGrid.push([]);
       for (let j = 0; j < numCols; j++) {
-        this.tetrisGrid[i].push({
+        this.tetrisGrid[this.tetrisGrid.length - 1].push({
           color: 'black',
           isFilled: j == 0 || j == numCols - 1,
         });
@@ -201,12 +296,68 @@ export class TetrisLogicService {
     }
     return this.tetrisGrid;
   }
+
   /**
-   * Updates tetris grid for all listeners.
+   * Adds an empty row to the grid
+   * @param {number} numCols
+   */
+  private static addEmptyRow(numCols: number = 12) {
+    this.tetrisGrid.push([]);
+    for (let j = 0; j < numCols; j++) {
+      this.tetrisGrid[this.tetrisGrid.length - 1].push({
+        color: 'black',
+        isFilled: j == 0 || j == numCols - 1,
+      });
+    }
+  }
+
+  /**
+   * Calls all listeners for updates on the tetris grid.
    */
   private static updateGrid() {
+    this.clearFilledRows();
     this.gameStateListeners.forEach((listener) =>
       listener([...this.tetrisGrid])
     );
   };
+
+  /**
+   * Returns whether a given grid coordinate is a border
+   * @param {number | undefined} i
+   * @param {number | undefined} j
+   * @param {number} numRows
+   * @param {number} numCols
+   * @return {boolean}
+   */
+  private static isBorder(
+      i?: number,
+      j?: number,
+      numRows: number = 21,
+      numCols: number = 12,
+  ): boolean {
+    return Boolean(j && j == 0) ||
+      Boolean(j && j >= numCols - 1) ||
+      Boolean(i && i >= this.tetrisGrid.length - 1);
+  }
+
+  /**
+   * Clears rows that are complete.
+   */
+  private static clearFilledRows() {
+    const rowCount = this.tetrisGrid.length;
+    this.tetrisGrid = this.tetrisGrid.filter((cells, i) => {
+      if (this.isBorder(i)) return true;
+      let isFilled = true;
+      cells.forEach((cell, j) => {
+        if (this.isBorder(i, j)) return;
+        isFilled = isFilled && cell.isFilled;
+      });
+      return !isFilled;
+    });
+    const eliminatedRowCount = (rowCount - this.tetrisGrid.length);
+    for (let i = 0; i < eliminatedRowCount; ++i) {
+      this.addEmptyRow();
+    }
+    this.score += eliminatedRowCount * 100;
+  }
 }
