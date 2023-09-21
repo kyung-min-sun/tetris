@@ -63,6 +63,9 @@ export function TetrisGridView(
         <div className={`flex flex-col ${!gameClicked ? 'opacity-40' : ''}`}
           onClick={() => setGameClicked(true)}
           tabIndex={0} onKeyDown={(e) => handleKeyPress(e)}>
+          <div>
+            Score: {TetrisLogicService.getScore()}
+          </div>
           {
             grid?.map((gridRow, i) =>
               <div key={i} className={`flex flex-row items-center`}>
