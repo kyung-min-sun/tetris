@@ -51,7 +51,7 @@ interface LayoutProps extends PropsWithChildren {
  * @return {ReactNode}
  */
 export default function Layout(
-    {children, title = 'ISO Tank'}: LayoutProps): ReactNode {
+    {children, title = 'Tetris'}: LayoutProps): ReactNode {
   return (
     <main className="bg-slate-200 min-h-screen">
       <Head>
